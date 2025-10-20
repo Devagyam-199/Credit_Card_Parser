@@ -6,19 +6,19 @@ import APIError from "../Utils/apiError.utils.js";
 
 const uploadStatement = async (req, res, next) => {
   try {
-    if (!req.file) {
-      throw new APIError(400, "No file was uploaded");
-    }
+    if (!req.file) throw new APIError(400, "No file was uploaded");
 
+    const uploadsDir = "./uploads";
+    if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+
+    const tempFilePath = `${uploadsDir}/${Date.now()}-${req.file.originalname}`;
+    fs.writeFileSync(tempFilePath, req.file.buffer);
+
+    // Create initial entry (status: Pending)
     const newStatement = await Statement.create({
       fileName: req.file.originalname,
       status: "Pending",
     });
-
-    const tempFilePath = `./uploads/${Date.now()}-${req.file.originalname}`;
-    await import("fs").then((fs) =>
-      fs.promises.writeFile(tempFilePath, req.file.buffer)
-    );
 
     const python = spawn("py", ["src/parser/main_parser.py", tempFilePath]);
 
@@ -34,33 +34,50 @@ const uploadStatement = async (req, res, next) => {
     });
 
     python.on("close", async (code) => {
-      await fs.promises.unlink(tempFilePath);
+      try {
+        if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath);
 
-      if (code === 0) {
-        try {
-          const jsonData = JSON.parse(parsedData);
+        if (code === 0 && parsedData.trim()) {
+          // --- 🧠 CLEAN PARSED OUTPUT ---
+          const cleanOutput = parsedData
+            .trim()
+            .replace(/^[^\{]*({[\s\S]*})[^\}]*$/m, "$1"); // Keep only valid JSON
+
+          let jsonData;
+          try {
+            jsonData = JSON.parse(cleanOutput);
+          } catch (parseErr) {
+            console.error("JSON parse error:", parseErr, cleanOutput);
+            newStatement.status = "Failed";
+            newStatement.errorMessage = "Invalid JSON from parser.";
+            await newStatement.save();
+            return next(new APIError(500, "Failed to parse Python output."));
+          }
+
+          // --- 💾 SAVE TO MONGO ---
           newStatement.parsedData = jsonData;
+          newStatement.issuerBank = jsonData.bank_detected || "Unknown";
           newStatement.status = "Parsed";
           await newStatement.save();
 
-          res.json({
+          return res.json({
             success: true,
-            message: "File uploaded and parsed successfully",
+            message: `File uploaded and parsed successfully (${newStatement.issuerBank})`,
             data: jsonData,
           });
-        } catch (error) {
+        } else {
+          console.error("Python error:", pythonError);
           newStatement.status = "Failed";
-          newStatement.errorMessage = "Parsing JSON failed";
+          newStatement.errorMessage = pythonError || `Python exited with code ${code}`;
           await newStatement.save();
-          next(new APIError(500, "Failed to parse the statement data"));
+          return next(new APIError(500, "Python parser failed."));
         }
-      } else {
-        console.error("Python error:", pythonError);
+      } catch (err) {
+        console.error("Internal save error:", err);
         newStatement.status = "Failed";
-        newStatement.errorMessage =
-          pythonError || `Python exited with code ${code}`;
+        newStatement.errorMessage = err.message;
         await newStatement.save();
-        next(new APIError(500, "Python parser failed"));
+        return next(new APIError(500, "Server error after Python parse."));
       }
     });
   } catch (error) {

@@ -25,7 +25,7 @@ const statementSchema = new mongoose.Schema({
     },
     errorMessage:{
         type:String,
-        default:"Something went wrong...",
+        default:"",
     }
 },{timestamps: true})
 

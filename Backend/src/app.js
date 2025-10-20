@@ -16,9 +16,9 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.use(express.json());
-app.use(globalErrorHandler);
 
 import router from "./Routes/upload.routes.js";
 app.use("/api",router);
 
+app.use(globalErrorHandler);
 export default app;
