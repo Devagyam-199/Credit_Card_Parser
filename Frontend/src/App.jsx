@@ -16,19 +16,21 @@ function App() {
     <Router>
       <div className="min-h-screen bg-gray-50">
         <Header />
-        <Routes>
-          <Route 
-            path="/" 
-            element={
-              parsedData ? <Navigate to="/dashboard" /> : <UploadPage setParsedData={setParsedData} setLoading={setLoading} loading={loading} />
-            } 
-          />
-          <Route 
-            path="/dashboard" 
-            element={parsedData ? <DashboardPage parsedData={parsedData} onNewUpload={handleNewUpload} /> : <Navigate to="/" />} 
-          />
-          <Route path="/upload" element={<UploadPage setParsedData={setParsedData} setLoading={setLoading} loading={loading} />} />
-        </Routes>
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <Routes>
+            <Route 
+              path="/" 
+              element={
+                parsedData ? <Navigate to="/dashboard" replace /> : <UploadPage setParsedData={setParsedData} setLoading={setLoading} loading={loading} />
+              } 
+            />
+            <Route 
+              path="/dashboard" 
+              element={parsedData ? <DashboardPage parsedData={parsedData} onNewUpload={handleNewUpload} /> : <Navigate to="/" replace />}
+            />
+            <Route path="/upload" element={<UploadPage setParsedData={setParsedData} setLoading={setLoading} loading={loading} />} />
+          </Routes>
+        </main>
       </div>
     </Router>
   );
