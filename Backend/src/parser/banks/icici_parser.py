@@ -26,13 +26,14 @@ def parse(text):
 
     lines = text.splitlines()
 
-    # ---- name, card, date, amounts (same as before) ---- #
+    # Cardholder name
     for line in lines[:50]:
         line = line.strip()
         if re.match(r'^(MR|MRS|MS|DR)\s+[A-Z][A-Z\s]{2,60}$', line):
             result["cardholder_name"] = line
             break
 
+    # Card number
     card_match = re.search(r'(\d{4}[Xx\*]{4,12}\d{4})', text)
     if card_match:
         result["card_number"] = card_match.group(1)
@@ -43,7 +44,15 @@ def parse(text):
                 for j in range(i, min(i + 5, len(lines))):
                     m = re.search(r'([A-Za-z]+\s+\d{1,2},\s*\d{4})', lines[j])
                     if m:
-                        return normalize_date(m.group(1))
+                        try:
+                            dt = datetime.strptime(m.group(1).strip(), "%B %d, %Y")
+                            return dt.strftime("%d/%m/%Y")
+                        except ValueError:
+                            pass
+                    # Fallback for direct dd/mm/yyyy
+                    m = re.search(r'(\d{2}/\d{2}/\d{4})', lines[j])
+                    if m:
+                        return m.group(1)
         return "N/A"
 
     result["statement_date"] = find_date("STATEMENT\\s+DATE")
@@ -52,7 +61,7 @@ def parse(text):
     def find_amount(label):
         for i, l in enumerate(lines):
             if re.search(label, l, re.IGNORECASE):
-                for j in range(i, min(i + 5, len(lines))):
+                for j in range(i, min(i + 10, len(lines))):  # Broader search
                     m = re.search(r'[₹`]\s*([\d,]+\.\d{2})', lines[j])
                     if m:
                         return normalize_money(m.group(1))
@@ -62,9 +71,9 @@ def parse(text):
     result["minimum_amount_due"] = find_amount("Minimum\\s+Amount\\s+due")
     result["credit_limit"] = find_amount("Credit\\s+Limit")
 
-    # ---- Transactions ---- #
+    # Transactions
     trans_pattern = re.compile(
-        r'(\d{2}/\d{2}/\d{4})\s+(\d{6,12})\s+([A-Za-z0-9\s\-,.&\'()/@]+?)\s+(-?\d+)\s+(\d{1,3}(?:,\d{3})*\.\d{2})\s*(CR|DR|Cr|Dr)?\s*',
+        r'(\d{2}/\d{2}/\d{4})\s+(\d{6,12})\s+([A-Za-z0-9\s\-,.&\'()/@]+?)\s+(-?\d+)\s+([\d,]+\.\d{2})\s*(CR|DR|Cr|Dr)?',
         re.MULTILINE | re.IGNORECASE
     )
 
@@ -76,7 +85,10 @@ def parse(text):
         if any(k in desc.upper() for k in ["DATE", "TRANSACTION", "DETAILS", "REWARD"]):
             continue
 
-        amount_val = float(normalize_money(m.group(5)))
+        amount_str = m.group(5)
+        amount_val = float(normalize_money(amount_str))
+        if amount_val == 0:
+            continue  # Skip zero amounts
         tx_type = (m.group(6) or "").upper()
 
         tx = {
@@ -84,13 +96,12 @@ def parse(text):
             "serial_no": m.group(2),
             "description": desc,
             "points": m.group(4),
-            "amount": normalize_money(m.group(5)),
+            "amount": normalize_money(amount_str),
             "type": tx_type
         }
 
         desc_l = desc.lower()
-
-        # ---- Smarter Categorization ---- #
+        # Categorization (unchanged, working well)
         if any(k in desc_l for k in ["fuel", "petrol", "indianoil", "hindustan petroleum", "hpcl", "bharat petroleum", "shell"]):
             categories["Fuel"] += amount_val
         elif any(k in desc_l for k in ["zomato", "swiggy", "restaurant", "food", "cafe", "dominos", "pizza", "mcdonald", "eat", "barbeque"]):
@@ -115,25 +126,13 @@ def parse(text):
     return result
 
 
-# -------------------- Utility Helpers --------------------
+# Utility helpers (improved normalize_money)
 def normalize_money(s):
     if not s:
         return "0.00"
-    s2 = s.replace("`", "").replace("₹", "").replace(",", "").strip()
+    s2 = re.sub(r'[₹`,]', '', s).replace(",", "").strip()
     if re.match(r'^\d+$', s2):
         return f"{s2}.00"
     if re.match(r'^\d+\.\d$', s2):
         return f"{s2}0"
     return s2
-
-
-def normalize_date(date_str):
-    if not date_str:
-        return "N/A"
-    try:
-        dt = datetime.strptime(date_str.strip(), "%B %d, %Y")
-        return dt.strftime("%d/%m/%Y")
-    except:
-        if re.match(r'\d{2}/\d{2}/\d{4}', date_str):
-            return date_str
-        return "N/A"
