@@ -14,7 +14,6 @@ const uploadStatement = async (req, res, next) => {
     const tempFilePath = `${uploadsDir}/${Date.now()}-${req.file.originalname}`;
     fs.writeFileSync(tempFilePath, req.file.buffer);
 
-    // Create initial entry (status: Pending)
     const newStatement = await Statement.create({
       fileName: req.file.originalname,
       status: "Pending",
@@ -38,23 +37,19 @@ const uploadStatement = async (req, res, next) => {
         if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath);
 
         if (code === 0 && parsedData.trim()) {
-          // --- 🧠 CLEAN PARSED OUTPUT ---
           const cleanOutput = parsedData
             .trim()
-            .replace(/^[^\{]*({[\s\S]*})[^\}]*$/m, "$1"); // Keep only valid JSON
+            .replace(/^[^\{]*({[\s\S]*})[^\}]*$/m, "$1");
 
           let jsonData;
           try {
             jsonData = JSON.parse(cleanOutput);
           } catch (parseErr) {
-            console.error("JSON parse error:", parseErr, cleanOutput);
             newStatement.status = "Failed";
             newStatement.errorMessage = "Invalid JSON from parser.";
             await newStatement.save();
             return next(new APIError(500, "Failed to parse Python output."));
           }
-
-          // --- 💾 SAVE TO MONGO ---
           newStatement.parsedData = jsonData;
           newStatement.issuerBank = jsonData.bank_detected || "Unknown";
           newStatement.status = "Parsed";
@@ -66,14 +61,12 @@ const uploadStatement = async (req, res, next) => {
             data: jsonData,
           });
         } else {
-          console.error("Python error:", pythonError);
           newStatement.status = "Failed";
           newStatement.errorMessage = pythonError || `Python exited with code ${code}`;
           await newStatement.save();
           return next(new APIError(500, "Python parser failed."));
         }
       } catch (err) {
-        console.error("Internal save error:", err);
         newStatement.status = "Failed";
         newStatement.errorMessage = err.message;
         await newStatement.save();
