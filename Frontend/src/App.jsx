@@ -29,6 +29,7 @@ function App() {
               element={parsedData ? <DashboardPage parsedData={parsedData} onNewUpload={handleNewUpload} /> : <Navigate to="/" replace />}
             />
             <Route path="/upload" element={<UploadPage setParsedData={setParsedData} setLoading={setLoading} loading={loading} />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
       </div>
