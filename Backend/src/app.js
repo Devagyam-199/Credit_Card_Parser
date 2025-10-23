@@ -9,7 +9,7 @@ import globalErrorHandler from './Utils/errorHandler.utils.js';
 const app = express();
 
 const corsOptions = {
-  origin: "https://creditcardparser.netlify.app",
+  origin: "https://crediwiz.netlify.app",
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
