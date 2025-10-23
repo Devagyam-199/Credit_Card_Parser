@@ -6,14 +6,14 @@ const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200/50 shadow-lg h-16 sm:h-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center h-full">
-        <div className="flex justify-between items-center w-full">
+    <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200/50 shadow-lg">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center py-4 sm:py-6">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-4 group">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-500"></div>
-              <div className="relative bg-gradient-to-r from-indigo-600 to-purple-600 p-2 rounded-full transform group-hover:scale-110 transition-transform duration-300">
+              <div className="relative bg-gradient-to-r from-indigo-600 to-purple-600 p-2.5 rounded-full transform group-hover:scale-110 transition-transform duration-300">
                 <CreditCard className="w-7 h-7 text-white" />
               </div>
             </div>
@@ -50,7 +50,7 @@ const Header = () => {
       
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-gray-200 bg-white/95 backdrop-blur-sm animate-slideDown max-h-[calc(100vh-4rem)] overflow-y-auto">
+        <div className="md:hidden border-t border-gray-200 bg-white/95 backdrop-blur-sm animate-slideDown">
           <div className="px-4 py-4 space-y-2">
             <Link 
               to="/dashboard" 
