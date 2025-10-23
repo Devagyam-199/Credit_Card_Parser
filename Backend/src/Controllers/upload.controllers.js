@@ -19,7 +19,7 @@ const uploadStatement = async (req, res, next) => {
       status: "Pending",
     });
 
-    const python = spawn("py", ["src/parser/main_parser.py", tempFilePath]);
+    const python = spawn("python3", ["src/parser/main_parser.py", tempFilePath]);
 
     let parsedData = "";
     let pythonError = "";

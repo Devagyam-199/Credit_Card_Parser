@@ -40,7 +40,7 @@ const UploadPage = ({ setParsedData, setLoading, loading }) => {
     formData.append('file', file);
 
     try {
-      const response = await axios.post('http://localhost:3000/api/upload', formData, {
+      const response = await axios.post('https://credit-card-parser-52na.onrender.com/api/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       setParsedData(response.data.data);
