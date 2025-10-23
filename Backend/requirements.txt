@@ -1,3 +1,2 @@
-pdfplumber
-pandas
-regex
+pdfplumber==0.11.7  # Or latest version
+# Add others if needed, e.g., from imports: no extras visible, but check banks/*.py for more
