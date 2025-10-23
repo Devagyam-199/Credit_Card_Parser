@@ -48,61 +48,57 @@ CrediWiz is a web application designed to parse credit card statements in PDF fo
 - **Netlify**: Frontend hosting.
 - **Render**: Backend hosting.
 
-## File Structure
-Credit_Card_Parser/
-├── Backend/
-│   └── src/
-│       ├── Controllers/
-│       │   └── upload.controllers.js
-│       ├── DB/
-│       │   └── dbConn.js
-│       ├── Models/
-│       │   └── statements.models.js
-│       ├── Routes/
-│       │   └── upload.routes.js
-│       ├── Utils/
-│       │   └── apiError.utils.js
-│       ├── parser/
-│       │   ├── banks/
-│       │   │   ├── axis_parser.py
-│       │   │   ├── general_parser.py
-│       │   │   ├── hdfc_parser.py
-│       │   │   ├── icici_parser.py
-│       │   │   └── idfc_parser.py
-│       │   ├── bank_detect.py
-│       │   └── main_parser.py
-│       ├── app.js
-│       ├── index.js
-│       ├── package-lock.json
-│       ├── package.json
-│       └── requirements.txt
-│
-├── Frontend/
-│   ├── public/
-│   └── src/
-│       ├── components/
-│       │   ├── AIInsights.jsx
-│       │   ├── Header.jsx
-│       │   ├── SpendingInsights.jsx
-│       │   └── TransactionTable.jsx
-│       ├── pages/
-│       │   ├── DashboardPage.jsx
-│       │   └── UploadPage.jsx
-│       ├── App.css
-│       ├── App.jsx
-│       ├── index.css
-│       ├── main.jsx
-│       ├── eslint.config.js
-│       ├── vite.config.js
-│       ├── package-lock.json
-│       └── package.json
-│
-├── real_bank_statements_for_testing/
-│   ├── axis_sample.pdf
-│   ├── hdfc_sample.pdf
-│   └── idfc_sample.pdf
-│
-└── README.md
+## File Structure.
+├── Credit_Card_Parser/    
+├── ├── Backend/       
+├── │ └── src/  
+├── │ ├── Controllers/  
+├── │ │ └── upload.controllers.js  
+├── │ ├── DB/   
+├── │ │ └── dbConn.js   
+├── │ ├── Models/   
+├── │ │ └── statements.models.js  
+├── │ ├── Routes/   
+├── │ │ └── upload.routes.js  
+├── │ ├── Utils/           
+├── │ │ └── apiError.utils.js          
+├── │ ├── parser/          
+├── │ │ ├── banks/          
+├── │ │ │ ├── axis_parser.py     
+├── │ │ │ ├── general_parser.py     
+├── │ │ │ ├── hdfc_parser.py       
+├── │ │ │ ├── icici_parser.py      
+├── │ │ │ └── idfc_parser.py       
+├── │ │ ├── bank_detect.py      
+├── │ │ └── main_parser.py       
+├── │ ├── app.js        
+├── │ ├── index.js         
+├── │ ├── package-lock.json         
+├── │ ├── package.json        
+├── │ └── requirements.txt       
+├── │        
+├── ├── Frontend/           
+├── │ ├── public/           
+├── │ └── src/           
+├── │ ├── components/           
+├── │ │ ├── AIInsights.jsx           
+├── │ │ ├── Header.jsx           
+├── │ │ ├── SpendingInsights.jsx           
+├── │ │ └── TransactionTable.jsx           
+├── │ ├── pages/           
+├── │ │ ├── DashboardPage.jsx           
+├── │ │ └── UploadPage.jsx           
+├── │ ├── App.css           
+├── │ ├── App.jsx           
+├── │ ├── index.css           
+├── │ ├── main.jsx           
+├── │ ├── eslint.config.js           
+├── │ ├── vite.config.js           
+├── │ ├── package-lock.json           
+├── │ └── package.json           
+├── │           
+├── ├── real_bank_statements_for_testing           
+└── └── README.md           
 
 ## Installation
 
